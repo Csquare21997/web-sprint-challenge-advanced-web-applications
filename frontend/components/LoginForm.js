@@ -24,17 +24,8 @@ export default function LoginForm({login}) {
   const onFormSubmit = evt => { 
     evt.preventDefault();
     login(values)
-    // axios
-    // .post ('http://localhost:9000/api/login', values)
-    // .then(res => {
-    //   console.log(res);
-    //   localStorage.setItem('token', res.data.token);
-      //navigate('/articles')
-    // })
-    // .catch((err) => console.log ({ err }))
-  }
-    // ✨ implement
-  
+
+}
 
   const isDisabled = (username,password) => {
     const trimmedUserName = username.trim();
@@ -73,5 +64,5 @@ export default function LoginForm({login}) {
 
 // 🔥 No touchy: LoginForm expects the following props exactly:
 LoginForm.propTypes = {
-  login: PT.func.isRequired,
+  login: PT.func.isRequired
 }

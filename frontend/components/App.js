@@ -5,6 +5,7 @@ import LoginForm from './LoginForm'
 import Message from './Message'
 import ArticleForm from './ArticleForm'
 import Spinner from './Spinner'
+import axios from 'axios'
 
 const articlesUrl = 'http://localhost:9000/api/articles'
 const loginUrl = 'http://localhost:9000/api/login'
@@ -31,35 +32,62 @@ export default function App() {
     // In any case, we should redirect the browser back to the login screen,
     // using the helper above.
   }
-
-  const login = ({ username, password }) => {
+  const login = async ({ username, password }) => {
     setMessage('')
     setSpinnerOn(true)
-
+  
     try {
-      const response = fetch(loginUrl, {
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       })
-
-      const data = response.json()
-      console.log(response)
-
+  
+      const data = await response.json()
+    
+  
       setSpinnerOn(false)
-
+  
       if (response.ok) {
         localStorage.setItem('token', data.token)
         setMessage('Login successful!')
         redirectToArticles()
-      } else {
-        setMessage(data.message || 'Login failed')
       }
-    } catch (error) {
+    } catch (err) {
+      console.error(err)
       setSpinnerOn(false)
-      setMessage('An error occurred. Please try again.')
+      setMessage('Login failed')
     }
   }
+  
+  // const login = ({ username, password }) => {
+  //   setMessage('')
+  //   setSpinnerOn(true)
+
+  //   try {
+  //     const response = async (loginUrl, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ username, password })
+  //     })
+
+  //     const data = response.json()
+  //     console.log(response)
+
+  //     setSpinnerOn(false)
+
+  //     if (response.ok) {
+  //       localStorage.setItem('token', data.token)
+  //       setMessage('Login successful!')
+  //       redirectToArticles()
+  //     } else {
+  //       setMessage(data.message || 'Login failed')
+  //     }
+  //   } catch (error) {
+  //     setSpinnerOn(false)
+  //     setMessage('An error occurred. Please try again.')
+  //   }
+  // }
 
     // ✨ implement
     // We should flush the message state, turn on the spinner
@@ -69,7 +97,7 @@ export default function App() {
     // to the Articles screen. Don't forget to turn off the spinner!
   
 
-  const getArticles = () => {
+  const getArticles = async () => {
     setMessage('')
     setSpinnerOn(true)
 
@@ -81,14 +109,17 @@ export default function App() {
     }
 
     try {
-      const response =  fetch(articlesUrl, {
+      const response =  await fetch(articlesUrl, {
         method: 'GET',
         headers: {
           'Authorization': `${token}`
         }
       })
 
-      const data =  response.json()
+      console.log (localStorage.getItem('token'))
+
+      const data = await response.json()
+      console.log(data)
       
 
       setSpinnerOn(false)
@@ -105,6 +136,7 @@ export default function App() {
       setSpinnerOn(false)
       setMessage('An error occurred while fetching articles.')
     }
+    
   }
     // ✨ implement
     // We should flush the message state, turn on the spinner
@@ -116,114 +148,186 @@ export default function App() {
     // Don't forget to turn off the spinner!
   
 
-  const postArticle = article => {
-      setMessage('')
-      setSpinnerOn (true)
-  
-      const token = localStorage.getItem ('token')
-  
-        if (!token){
-          redirectToLogin()
-          return
-        }
-        try {
-          const response = fetch(articlesUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(article)
-          })
-    
-          const data =  response.json()
-    
-          setSpinnerOn(false)
-    
-          if (response.ok) {
-            setMessage('Article created successfully!')
-            getArticles()  // Refresh the articles list
-          } else {
-            setMessage(data.message || 'Failed to create article.')
-          }
-        } catch (error) {
-          setSpinnerOn(false)
-          setMessage('An error occurred while posting article.')
-        }
-      
-  }
-
-  const updateArticle = ({ article_id, article }) => {
+  const postArticle = (article) => {
     setMessage('')
     setSpinnerOn(true)
 
     const token = localStorage.getItem('token')
 
-    if (!token) {
-      redirectToLogin()
-      return
-    }
-
-    try {
-      const response = fetch(`${articlesUrl}/${article_id}`, {
-        method: 'PUT',
+    axios
+      .post(articlesUrl, article, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization:token,
         },
-        body: JSON.stringify(article)
       })
-
-      const data = response.json()
-
-      setSpinnerOn(false)
-
-      if (response.ok) {
-        setMessage('Article updated successfully!')
-        getArticles()  // Refresh the articles list
-      } else {
-        setMessage(data.message || 'Failed to update article.')
-      }
-    } catch (error) {
-      setSpinnerOn(false)
-      setMessage('An error occurred while updating article.')
-    }
-  }
-
-  const deleteArticle = article_id => {
-    setMessage('')
-    setSpinnerOn(true)
-
-    const token = localStorage.getItem('token')
-
-    if (!token) {
-      redirectToLogin()
-      return
-    }
-
-    try {
-      const response = fetch(`${articlesUrl}/${article_id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      .then ((res)=> {
+        setArticles([...articles,res.data.article])
+        setMessage(res.data.message)
+      } )
+      .catch((err) => {
+        console.error(err)
+        setMessage("fail to post article")
+      }) 
+      .finally (()=> {
+        setSpinnerOn(false)
       })
-
-      const data = response.json()
-
-      setSpinnerOn(false)
-
-      if (response.ok) {
-        setMessage('Article deleted successfully!')
-        getArticles()  // Refresh the articles list
-      } else {
-        setMessage(data.message || 'Failed to delete article.')
       }
-    } catch (error) {
-      setSpinnerOn(false)
-      setMessage('An error occurred while deleting article.')
-    }
-  }
+  
+  //     setMessage('')
+  //     setSpinnerOn (true)
+  
+  //     const token = localStorage.getItem ('token')
+  
+  //       if (!token){
+  //         redirectToLogin()
+  //         return
+  //       }
+  //       try {
+  //         const response = await fetch(articlesUrl, {
+  //           method: 'POST',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //             'Authorization': `Bearer ${token}`
+  //           },
+  //           body: JSON.stringify(article)
+  //         })
+    
+  //         const data = await response.json()
+    
+  //         setSpinnerOn(false)
+    
+  //         if (response.ok) {
+  //           setMessage('Article created successfully!')
+  //           getArticles()  // Refresh the articles list
+  //         } else {
+  //           setMessage(data.message || 'Failed to create article.')
+  //         }
+  //       } catch (error) {
+  //         setSpinnerOn(false)
+  //         setMessage('An error occurred while posting article.')
+  //       }
+      
+  // }
+
+  const updateArticle =  ({article_id, article}) => {
+    setMessage("");
+		setSpinnerOn(true);
+
+		const token = localStorage.getItem("token");
+
+		axios
+			.put(`${articlesUrl}/${article_id}`, article, {
+				headers: {
+					Authorization: token,
+				},
+			})
+			.then((res) => {
+				setArticles(
+					articles.map((a) =>
+						a.article_id === article_id ? res.data.article : a
+					)
+				);
+				setMessage(res.data.message);
+				setCurrentArticleId(null);
+			})
+			.catch((err) => {
+				console.error(err);
+				setMessage("Failed to update article.");
+			})
+			.finally(() => setSpinnerOn(false));
+	};
+
+  //   setMessage('')
+  //   setSpinnerOn(true)
+
+  //   const token = localStorage.getItem('token')
+
+  //   if (!token) {
+  //     redirectToLogin()
+  //     return
+  //   }
+
+  //   try {
+  //     const response = await fetch (`${articlesUrl}/${article_id}`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //       body: JSON.stringify(article)
+  //     })
+
+  //     const data = await response.json()
+
+  //     setSpinnerOn(false)
+
+  //     if (response.ok) {
+  //       setMessage('Article updated successfully!')
+  //       getArticles()  // Refresh the articles list
+  //     } else {
+  //       setMessage(data.message || 'Failed to update article.')
+  //     }
+  //   } catch (error) {
+  //     setSpinnerOn(false)
+  //     setMessage('An error occurred while updating article.')
+  //   }
+  // }
+
+  const deleteArticle =  (article_id) => {
+    setMessage("");
+		setSpinnerOn(true);
+
+		const token = localStorage.getItem("token");
+
+		axios
+			.delete(`${articlesUrl}/${article_id}`, {
+				headers: {
+					Authorization: token,
+				},
+			})
+			.then((res) => {
+				setArticles(articles.filter((a) => a.article_id !== article_id));
+				setMessage(res.data.message);
+			})
+			.catch((err) => {
+				console.error(err);
+				setMessage("Failed to delete article.");
+			})
+			.finally(() => setSpinnerOn(false));
+	};
+  //   setMessage('')
+  //   setSpinnerOn(true)
+
+  //   const token = localStorage.getItem('token')
+
+  //   if (!token) {
+  //     redirectToLogin()
+  //     return
+  //   }
+
+  //   try {
+  //     const response = await fetch(`${articlesUrl}/${article_id}`, {
+  //       method: 'DELETE',
+  //       headers: {
+  //         'Authorization': `Bearer ${token}`
+  //       }
+  //     })
+
+  //     const data = await response.json()
+
+  //     setSpinnerOn(false)
+
+  //     if (response.ok) {
+  //       setMessage('Article deleted successfully!')
+  //       getArticles()  // Refresh the articles list
+  //     } else {
+  //       setMessage(data.message || 'Failed to delete article.')
+  //     }
+  //   } catch (error) {
+  //     setSpinnerOn(false)
+  //     setMessage('An error occurred while deleting article.')
+  //   }
+  // }
   
 
   return (
@@ -243,8 +347,16 @@ export default function App() {
           login ={login} />} />
           <Route  path="articles" element={
             <>
-              <ArticleForm />
-              <Articles getArticles ={getArticles}/>
+              <ArticleForm
+              setCurrentArticleId={setCurrentArticleId}
+              postArticle={postArticle} 
+              updateArticle={updateArticle} 
+            />
+              <Articles getArticles ={getArticles} 
+              articles={articles}
+              deleteArticle={deleteArticle}
+              setCurrentArticleId={setCurrentArticleId}
+              />
             </>
           } />
         </Routes>

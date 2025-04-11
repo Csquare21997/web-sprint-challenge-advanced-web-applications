@@ -2,9 +2,18 @@ import React, { useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import PT from 'prop-types'
 
-export default function Articles(props) {
+
+
+export default function Articles({articles, getArticles, deleteArticle, setCurrentArticleId}) {
   // ✨ where are my props? Destructure them here
-const { getArticles } = props 
+
+
+const token = localStorage.getItem('token')
+
+
+if (!token){
+  return <Navigate to="/login" />
+}
 
 
 
@@ -12,9 +21,17 @@ const { getArticles } = props
   // we should render a Navigate to login screen (React Router v.6)
 
   useEffect(() => {
-    getArticles ()
+    getArticles()
     // ✨ grab the articles here, on first render only
-  })
+  },[])
+
+  const handleEdit = (articleId) =>{
+    setCurrentArticleId(articleId)
+  }
+
+  const handleDelete = (articleId) =>{
+    deleteArticle(articleId)
+  }
 
   return (
     // ✨ fix the JSX: replace `Function.prototype` with actual functions
@@ -22,9 +39,9 @@ const { getArticles } = props
     <div className="articles">
       <h2>Articles</h2>
       {
-        ![].length
+        !articles.length
           ? 'No articles yet'
-          : [].map(art => {
+          : articles.map(art => {
             return (
               <div className="article" key={art.article_id}>
                 <div>
@@ -33,8 +50,9 @@ const { getArticles } = props
                   <p>Topic: {art.topic}</p>
                 </div>
                 <div>
-                  <button disabled={true} onClick={Function.prototype}>Edit</button>
-                  <button disabled={true} onClick={Function.prototype}>Delete</button>
+                <button onClick={() => handleEdit(art.article_id)}>Edit</button>
+                <button onClick={() => console.log("Edit", art.article_id)}>Edit</button>
+                  <button onClick={() => handleDelete(art.article_id)}>Delete</button>
                 </div>
               </div>
             )
@@ -42,6 +60,7 @@ const { getArticles } = props
       }
     </div>
   )
+
 }
 
 // 🔥 No touchy: Articles expects the following props exactly:
