@@ -52,7 +52,7 @@ export default function App() {
   
       if (response.ok) {
         localStorage.setItem('token', data.token)
-        setMessage('Login successful!')
+        setMessage(data.message)
         redirectToArticles()
       }
     } catch (err) {
@@ -128,7 +128,7 @@ export default function App() {
 
       if (response.ok) {
         setArticles(data.articles)
-        setMessage('Articles loaded successfully.')
+        setMessage(data.message)
       } else if (response.status === 401) {
         redirectToLogin()
       } else {
