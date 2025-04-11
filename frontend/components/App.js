@@ -17,6 +17,8 @@ export default function App() {
   const [currentArticleId, setCurrentArticleId] = useState()
   const [spinnerOn, setSpinnerOn] = useState(false)
 
+
+
   // ✨ Research `useNavigate` in React Router v.6
   const navigate = useNavigate()
   const redirectToLogin = () => navigate('/')
@@ -328,13 +330,13 @@ export default function App() {
   //     setMessage('An error occurred while deleting article.')
   //   }
   // }
-  
+ 
 
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
     <>
       <Spinner />
-      <Message />
+      <Message message={message}/>
       <button id="logout" onClick={logout}>Logout from app</button>
       <div id="wrapper" style={{ opacity: spinnerOn ? "0.25" : "1" }}> {/* <-- do not change this line */}
         <h1>Advanced Web Applications</h1>
@@ -347,12 +349,17 @@ export default function App() {
           login ={login} />} />
           <Route  path="articles" element={
             <>
-              <ArticleForm
+              <ArticleForm 
+              currentArticle={articles.find(
+                (article) => currentArticleId === article.article_id
+              )}
               setCurrentArticleId={setCurrentArticleId}
               postArticle={postArticle} 
               updateArticle={updateArticle} 
             />
-              <Articles getArticles ={getArticles} 
+              <Articles 
+              currentArticleId={currentArticleId}
+              getArticles ={getArticles} 
               articles={articles}
               deleteArticle={deleteArticle}
               setCurrentArticleId={setCurrentArticleId}

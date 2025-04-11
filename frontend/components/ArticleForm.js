@@ -9,7 +9,7 @@ export default function ArticleForm({postArticle, updateArticle , setCurrentArti
  
   // ✨ where are my props? Destructure them here
 
-  useEffect(() => {
+  useEffect(() => { console.log(currentArticle)
     if (currentArticle){
       setValues({
         title:currentArticle.title,
@@ -24,6 +24,7 @@ export default function ArticleForm({postArticle, updateArticle , setCurrentArti
     // if it's truthy, we should set its title, text and topic into the corresponding
     // values of the form. If it's not, we should reset the form back to initial values.
   },[currentArticle])
+  
 
   const onChange = evt => {
     const { id, value } = evt.target
@@ -52,8 +53,7 @@ export default function ArticleForm({postArticle, updateArticle , setCurrentArti
   }
   const handleDelete = () => {
     setCurrentArticleId(null)
-    setValues(initialFormValues)
-  }
+      }
 
   return (
     // ✨ fix the JSX: make the heading display either "Edit" or "Create"
@@ -83,6 +83,7 @@ export default function ArticleForm({postArticle, updateArticle , setCurrentArti
       <div className="button-group">
         <button disabled={isDisabled()} id="submitArticle">Submit</button>
         <button onClick={handleDelete}>Cancel edit</button>
+        {/* <button onClick={() => setCurrentArticleId(null)}>Cancel edit</button> */}
       </div>
     </form>
   )

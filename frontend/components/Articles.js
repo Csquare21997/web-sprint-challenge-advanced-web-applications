@@ -4,7 +4,8 @@ import PT from 'prop-types'
 
 
 
-export default function Articles({articles, getArticles, deleteArticle, setCurrentArticleId}) {
+export default function Articles({articles, getArticles, deleteArticle, setCurrentArticleId, currentArticleId}) {
+  console.log(articles)
   // ✨ where are my props? Destructure them here
 
 
@@ -27,6 +28,7 @@ if (!token){
 
   const handleEdit = (articleId) =>{
     setCurrentArticleId(articleId)
+    console.log("handleEdit", articleId)
   }
 
   const handleDelete = (articleId) =>{
@@ -51,7 +53,6 @@ if (!token){
                 </div>
                 <div>
                 <button onClick={() => handleEdit(art.article_id)}>Edit</button>
-                <button onClick={() => console.log("Edit", art.article_id)}>Edit</button>
                   <button onClick={() => handleDelete(art.article_id)}>Delete</button>
                 </div>
               </div>
